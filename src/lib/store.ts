@@ -19,6 +19,33 @@ export function clearLocalUser(): void {
   localStorage.removeItem(LOCAL_USER_KEY);
 }
 
+/** Verify local user exists in Supabase. Returns user if valid, null otherwise. */
+export async function verifyLocalUser(): Promise<User | null> {
+  const local = getLocalUser();
+  if (!local) return null;
+
+  const { data } = await supabase
+    .from('members')
+    .select('*')
+    .eq('id', local.id)
+    .single();
+
+  if (!data) {
+    clearLocalUser();
+    return null;
+  }
+
+  // Sync latest data from DB
+  const user: User = {
+    id: data.id,
+    name: data.name,
+    avatar: data.avatar,
+    joinedAt: data.joined_at,
+  };
+  setLocalUser(user);
+  return user;
+}
+
 /** Join with group code. Returns the user or null if code is wrong. */
 export async function joinGroup(
   name: string,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User } from '@/lib/types';
-import { getLocalUser } from '@/lib/store';
+import { verifyLocalUser } from '@/lib/store';
 import BottomNav from '@/components/BottomNav';
 import OnboardingModal from '@/components/OnboardingModal';
 import HomeTab from '@/components/HomeTab';
@@ -17,8 +17,10 @@ export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    setUserState(getLocalUser());
-    setLoading(false);
+    verifyLocalUser().then(user => {
+      setUserState(user);
+      setLoading(false);
+    });
   }, []);
 
   const handleWorkoutComplete = () => {
